@@ -6,8 +6,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:modelValue', newValue: boolean): void;
-  (e: 'change', newValue: boolean): void;
+  (e: 'update:modelValue' | 'change', newValue: boolean): void;
 }
 
 const props = defineProps<Props>()
@@ -24,37 +23,40 @@ const toggle = () => {
 
 <template>
   <div class="toggle-switch">
-    <input :id="props.name" type="checkbox" :checked="_value" tabindex="-1" @change="toggle">
-    <label :for="props.name" tabindex="0" @keydown.enter="toggle" @keydown.space="toggle"></label>
+    <input :id="props.name" class="input" type="checkbox" :checked="_value" tabindex="-1" @change="toggle">
+    <label :for="props.name" class="label" tabindex="0" @keydown.enter="toggle" @keydown.space="toggle"></label>
   </div>
 </template>
 
 
 <style lang="scss" scoped>
-  .toggle-switch {
-    display: table;
-  }
-  input {
-    display: none;
-  }
-  label {
-    display: block;
-    position: relative;
-    width: 2.75rem;
-    height: 1.5rem;
-    border-radius: .75rem;
-    background-color: $inputBg;
-    cursor: pointer;
-    outline: none;
-    &:focus {
-      outline: solid 1px $borderColor;
-      background-color: $inputBgF;
+.toggle-switch {
+  display: table;
+}
+.input {
+  display: none;
+  &:checked + .label {
+    background-color: rgba(255, 255, 255, .2);
+    &::before {
+      left: calc(100% - 1.3125rem);
+      background-color: #DFE5E8;
     }
   }
-  input:checked + label {
-    background-color: rgba(255, 255, 255, .2);
+}
+.label {
+  display: block;
+  position: relative;
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: .75rem;
+  background-color: $inputBg;
+  cursor: pointer;
+  outline: none;
+  &:focus {
+    outline: solid 1px $borderColor;
+    background-color: $inputBgF;
   }
-  label::before {
+  &::before {
     position: absolute;
     top: .1875rem;
     left: .1875rem;
@@ -65,8 +67,5 @@ const toggle = () => {
     transition: .3s;
     content: "";
   }
-  input:checked + label::before {
-    left: calc(100% - 1.3125rem);
-    background-color: #DFE5E8;
-  }
+}
 </style>

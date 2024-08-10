@@ -1,6 +1,6 @@
-import type { LittoralArray, Settings, StyleList } from '~/types/types'
+import type { LittoralArray, Settings, StyleList, GridSpec, MapSpecs } from '~/types/types'
 
-export const NEED_TOKEN = 'You will need your own Mapbox access token\nto download the heightmap data for CS2.'
+export const NEED_TOKEN = 'You will need your own Mapbox access token\nto download the heightmap data for'
 export const ATTR = '\u00A9 Mapbox \u00A9 OpenStreetMap'
 export const ATTR_RAS = '\u00A9 Maxar \u00A9 Mapbox \u00A9 OpenStreetMap'
 
@@ -22,51 +22,97 @@ export const styleList: StyleList = {
   'Mapbox Satellite Streets': { text: 'Sat. Streets', value: 'mapbox/satellite-streets-v12', before: '', grid: 'white', alpha: '0.4' },
 }
 
-export const mapSpec = {
+const gridCs1: GridSpec = {
+  cell: 9,
+  center: [40, 40, 40, 40],
+  play: [20, 24, 60, 56],
+  rotate: [
+    [0, 0, 0, 0],
+    [8, 8, 8, 8],
+    [80, 80, 80, 80],
+    [72, 72, 72, 72],
+  ],
+  side: [0, 8, 80, 72],
+}
+
+const gridCs2: GridSpec = {
+  cell: 24,
+  center: [275, 276, 300, 299],
+  play: [225, 230, 350, 345],
+  rotate: [
+    [0, 1, 25, 24],
+    [22, 23, 47, 46],
+    [550, 551, 575, 574],
+    [528, 529, 553, 552],
+  ],
+  side: [0, 23, 575, 552],
+}
+
+const gridEngine: GridSpec = {
+  cell: 8,
+  center: [27, 28, 36, 35],
+  play: undefined,
+  rotate: [
+    [0, 0, 0, 0],
+    [7, 7, 7, 7],
+    [63, 63, 63, 63],
+    [56, 56, 56, 56],
+  ],
+  side: [0, 7, 63, 56],
+}
+
+/**
+ * Only CS2 has special handling.
+ * CS2 needs to generate two heightmaps (heightmap, worldmap) and uses options for that.
+ * Also, the origin of the elevation data is probably centered (others are top-left).
+ * For that purpose, we use correction values.
+ * This variable can be extended once the map specification is known.
+ */
+export const mapSpec: MapSpecs = {
   cs1: {
-    mapPixels: 1081,
-    mapFaces: 1080,
-    size: 17.280,
-    cell: 9,
-    center: [40, 40, 40, 40],
-    play: [20, 24, 60, 56],
-    rotate: [
-      [0, 0, 0, 0],
-      [8, 8, 8, 8],
-      [80, 80, 80, 80],
-      [72, 72, 72, 72],
-    ],
-    side: [0, 8, 80, 72],
+    name: 'CS1',
+    defaultSize: 17.280,
+    defaultRes: 1081,
+    defaultEs: 1024 / 65536 * 65535,
+    resolutions: [1081],
+    correction: 1,
+    grid: gridCs1,
   },
   cs2: {
-    mapPixels: 4096,
-    mapFaces: 4096,
-    size: 57.344,
-    cell: 24,
-    center: [275, 276, 300, 299],
-    play: [225, 230, 350, 345],
-    rotate: [
-      [0, 1, 25, 24],
-      [22, 23, 47, 46],
-      [550, 551, 575, 574],
-      [528, 529, 553, 552],
-    ],
-    side: [0, 23, 575, 552],
+    name: 'CS2',
+    defaultSize: 57.344,
+    defaultRes: 4096,
+    defaultEs: 4096,
+    resolutions: [4096],
+    correction: 0,
+    grid: gridCs2,
   },
   cs2play: {
-    mapPixels: 4096,
-    mapFaces: 4096,
-    size: 57.344,
-    cell: 24,
-    center: [275, 276, 300, 299],
-    play: [225, 230, 350, 345],
-    rotate: [
-      [0, 1, 25, 24],
-      [22, 23, 47, 46],
-      [550, 551, 575, 574],
-      [528, 529, 553, 552],
-    ],
-    side: [0, 23, 575, 552],
+    name: 'CS2',
+    defaultSize: 57.344,
+    defaultRes: 4096,
+    defaultEs: 4096,
+    resolutions: [4096],
+    correction: 0,
+    grid: gridCs2,
+  },
+  unity: {
+    name: 'Unity',
+    defaultSize: undefined,
+    defaultRes: 513,
+    defaultEs: 4096,
+    resolutions: [33, 65, 129, 257, 513, 1025, 2049, 4097],
+    correction: 1,
+    grid: gridEngine,
+  },
+  ue: {
+    name: 'UE',
+    defaultSize: undefined,
+    defaultRes: 505,
+    defaultEs: 4096,
+    resolutions: [127, 253, 505, 1009, 2017, 4033, 8129],
+    correction: 1,
+    grid: gridEngine,
   },
 }
 
@@ -91,6 +137,9 @@ export const initialValue: Settings = {
   lat:               40.78280,
   zoom:              10,
   size:              17.280,
+  resolution:        1081,
+  worldPartition:    false,
+  wpCells:           1,
   angle:             0,
   seaLevel:          0,
   adjLevel:          false,
@@ -119,4 +168,8 @@ export const initialValue: Settings = {
   displayEffectArea: false,
   applyEffectAmount: false,
   accessToken:       '',
+}
+
+export const needToken = (type: string) => {
+  return `${NEED_TOKEN} ${mapSpec[type].name}.`
 }

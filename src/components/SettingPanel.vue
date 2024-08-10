@@ -32,10 +32,10 @@ const message = ref('')
 const minHeight = ref('-')
 const maxHeight = ref('-')
 
-const maxSize = computed(() => mapSpec[mapbox.value.settings.gridInfo].size * 4)
-const minSize = computed(() => mapSpec[mapbox.value.settings.gridInfo].size / 2)
+const maxSize = computed(() => (mapSpec[mapbox.value.settings.gridInfo].defaultSize || 25.000) * 4)
+const minSize = computed(() => (mapSpec[mapbox.value.settings.gridInfo].defaultSize || 1.000) / 2)
 
-const hScale = computed(() => mapSpec[mapbox.value.settings.gridInfo].size / mapbox.value.settings.size)
+const hScale = computed(() => (mapSpec[mapbox.value.settings.gridInfo].defaultSize || mapbox.value.settings.size) / mapbox.value.settings.size)
 const vScale = computed(() => mapbox.value.settings.vertScale)
 
 const _sharpen = computed(() => mapbox.value.settings.sharpen)
@@ -166,7 +166,7 @@ const refresh = async () => {
       adjustElevation(minmax.max)
 
       // get position
-      const grid = getGrid(mapbox.value.settings.lng, mapbox.value.settings.lat, mapbox.value.settings.size, mapbox.value.settings.angle)
+      const grid = getGrid(mapbox, mapbox.value.settings.lng, mapbox.value.settings.lat, mapbox.value.settings.size, mapbox.value.settings.angle)
       const corners = getPoint(grid)
       console.log('min:', minmax.min, 'max:', minmax.max)
       console.log(corners)
@@ -208,7 +208,7 @@ const changeMapSize = (size: number) => {
 }
 
 const resetSize = () => {
-  changeMapSize(mapSpec[mapbox.value.settings.gridInfo].size)
+  changeMapSize(mapSpec[mapbox.value.settings.gridInfo].defaultRes || 2.000)
 }
 
 const onSizeChange = (value: number) => {
@@ -260,7 +260,7 @@ onMounted(() => {
       <div class="coordinates">
         <ul>
           <li><label>Lng&#8202;:</label><NumberInput :value="mapbox.settings.lng" :max="180" :min="-180" :step="0.00001" @change="onLngChange" /></li>
-          <li><label>Lat&#8202;:</label><NumberInput :value="mapbox.settings.lat" :max="85.05112" :min="-85.05112" :step="0.00001" @change="onLatChange" /></li>
+          <li><label>Lat&#8202;:</label><NumberInput :value="mapbox.settings.lat" :max="85" :min="-85" :step="0.00001" @change="onLatChange" /></li>
         </ul>
       </div>
     </section>
@@ -280,7 +280,7 @@ onMounted(() => {
           <ul>
             <li>
               <label>Map Size&#8202;:</label>
-              <button class="reset-size" @click="resetSize"><font-awesome-icon :icon="['fas', 'arrow-rotate-right']" class="fa-fw fa-xs" /></button>
+              <button class="size-reset" @click="resetSize"><font-awesome-icon :icon="['fas', 'arrow-rotate-right']" class="fa-fw fa-xs" /></button>
               <NumberInput :value="mapbox.settings.size" :max="maxSize" :min="minSize" :step="0.001" @change="onSizeChange" /><span>㎞</span>
             </li>
             <li><label>Sea Level&#8202;:</label><NumberInput v-model="mapbox.settings.seaLevel" :max="9999" :min="-9999" :step="0.1" /><span>m</span></li>
@@ -466,7 +466,7 @@ onMounted(() => {
       background-color: rgba(0, 206, 209, .35);
     }
   }
-  .reset-size {
+  .size-reset {
     position: relative;
     top: 2px;
     color: $textColor;

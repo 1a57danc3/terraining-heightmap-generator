@@ -1,5 +1,5 @@
 import type { Position } from 'geojson'
-import { $fetch, FetchError } from 'ofetch'
+import { $fetch, type FetchError } from 'ofetch'
 import { Canvg } from 'canvg'
 import { DOMParser } from '@xmldom/xmldom'
 import { ATTR, ATTR_RAS } from '~/utils/const'
@@ -7,6 +7,7 @@ import { pixel2lng, pixel2lat } from '~/utils/tiles'
 import type { Settings } from '~/types/types'
 import { getExtentInWorldCoords } from '~/utils/getExtent'
 import logoUrl from '~/assets/svg/mapboxgl-ctrl-logo.svg'
+import initPng, { encode_png } from '~~/png_lib/pkg'
 
 type T = {
   settings: Settings;
@@ -20,6 +21,12 @@ type T = {
 type R = {
   data: Blob | undefined;
   error: FetchError<any> | undefined;
+}
+
+const clearCanvas = (ctx: OffscreenCanvasRenderingContext2D) => {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+  ctx.canvas.width = 0
+  ctx.canvas.height = 0
 }
 
 const rotate = (array: Position[], angle: number, centerX: number, centerY: number)  => {
@@ -137,8 +144,7 @@ class GetCustomMapImage {
             image.close()
           }
         } else {
-          const error = tile.reason
-          throw error
+          throw tile.reason
         }
       })
       await Promise.all(tilePromises)
@@ -155,9 +161,10 @@ class GetCustomMapImage {
     await v.render()
     ctx.drawImage(logoCanvas, 0, canvas.height - 45)
 
+
     // attribution
     const attrText = styleUrl.includes('satellite') ? ATTR_RAS : ATTR
-    ctx.font = '20px \'Helvetica Neue\', Arial, Helvetica, sans-serif'
+    ctx.font = '20px "Helvetica Neue", Arial, Helvetica, sans-serif'
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
     const textWidth = ctx.measureText(attrText).width + 10
     ctx.fillRect(canvas.width - textWidth, canvas.height - 30, textWidth, 30)
@@ -166,8 +173,24 @@ class GetCustomMapImage {
     ctx.textBaseline = 'bottom'
     ctx.fillText(attrText, canvas.width - 5, canvas.height - 2)
 
-    const imageBitmap = canvas.transferToImageBitmap()
-    this.worker.postMessage(imageBitmap, [imageBitmap])
+    // encode
+    const imageData = new Uint8Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data)
+    const compression = _side > 4096 ? 'Best' : 'Default'
+    await initPng()
+    const png = await encode_png(
+      { data: imageData },
+      _side,
+      _side,
+      'Rgba',
+      'Eight',
+      compression,
+    )
+
+    // clear canvas
+    clearCanvas(logoCtx)
+    clearCanvas(ctx)
+
+    this.worker.postMessage(png.data)
   }
 }
 

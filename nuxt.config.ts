@@ -11,19 +11,24 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false,
   },
+
   ssr: false,
+
   typescript: {
     strict: true,
     typeCheck: true,
     shim: false,
   },
+
   srcDir: 'src/',
+
   runtimeConfig: {
     public: {
       token,
       gtag: '',
     },
   },
+
   css: [
     '@/assets/scss/reset.scss',
     '@/assets/scss/main.scss',
@@ -31,6 +36,7 @@ export default defineNuxtConfig({
     'mapbox-gl/dist/mapbox-gl.css',
     'overlayscrollbars/styles/overlayscrollbars.css',
   ],
+
   hooks: {
     'vite:extendConfig'(config, { isClient })  {
       if (isClient) {
@@ -43,6 +49,7 @@ export default defineNuxtConfig({
       }
     },
   },
+
   vite: {
     build: {
       chunkSizeWarningLimit: 2000,
@@ -80,16 +87,20 @@ export default defineNuxtConfig({
       format: 'es',
     },
   },
+
   modules: [
+    '@nuxt/eslint',
     '@nuxtjs/device',
     '@nuxtjs/google-fonts',
   ],
+
   components: [
     {
       path: '@/components',
       pathPrefix: false,
     },
   ],
+
   build: {
     transpile: [
       '@fortawesome/fontawesome-svg-core',
@@ -97,6 +108,7 @@ export default defineNuxtConfig({
       '@fortawesome/vue-fontawesome',
     ],
   },
+
   app: {
     head: {
       htmlAttrs: {
@@ -123,13 +135,16 @@ export default defineNuxtConfig({
       ],
     },
   },
+
   googleFonts: {
     display: 'swap',
     inject: true,
     download: true,
     preload: true,
     families: {
-      Inter: [400, 700],
+      "Inter Tight": [400, 700],
     },
   },
+
+  compatibilityDate: '2024-07-14',
 })

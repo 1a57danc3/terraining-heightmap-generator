@@ -5,7 +5,9 @@ $inputBgF: rgba(5, 6, 40, .4);
 $textColor: #F1F3F4;
 $textAlt: #9BA0A5;
 $textDisabled: #86888A;
+$btnColor: #D6D8D9;
 $borderColor: rgba(255, 255, 255, .2);
+$borderColor2: rgba(255, 255, 255, .35);
 $optionTagColor: rgb(43, 42, 51);
 
 
@@ -29,7 +31,7 @@ $optionTagColor: rgb(43, 42, 51);
 }
 
 @mixin opaque {
-  background: linear-gradient(to bottom right, #41463E, #393F3A);
+  background: linear-gradient(to bottom right, #3D3D3F, #3B3B3D);
   border-top: solid 1px rgba(0, 0, 0, .1);
   border-left: solid 1px rgba(0, 0, 0, .1);
   border-right: solid 1px rgba(0, 0, 0, .2);
@@ -76,6 +78,12 @@ $optionTagColor: rgb(43, 42, 51);
 // @media
 @mixin mobile {
   @media screen and (max-width: 480px) {
+    @content;
+  }
+}
+
+@mixin layout {
+  @media screen and (max-width: 524px) {
     @content;
   }
 }
