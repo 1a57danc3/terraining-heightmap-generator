@@ -166,7 +166,7 @@ const refresh = async () => {
       adjustElevation(minmax.max)
 
       // get position
-      const grid = getGrid(mapbox, mapbox.value.settings.lng, mapbox.value.settings.lat, mapbox.value.settings.size, mapbox.value.settings.angle)
+      const grid = getGrid(mapbox.value.settings.lng, mapbox.value.settings.lat, mapbox.value.settings.size, mapbox.value.settings.angle)
       const corners = getPoint(grid)
       console.log('min:', minmax.min, 'max:', minmax.max)
       console.log(corners)
@@ -260,7 +260,7 @@ onMounted(() => {
       <div class="coordinates">
         <ul>
           <li><label>Lng&#8202;:</label><NumberInput :value="mapbox.settings.lng" :max="180" :min="-180" :step="0.00001" @change="onLngChange" /></li>
-          <li><label>Lat&#8202;:</label><NumberInput :value="mapbox.settings.lat" :max="85" :min="-85" :step="0.00001" @change="onLatChange" /></li>
+          <li><label>Lat&#8202;:</label><NumberInput :value="mapbox.settings.lat" :max="85.05112" :min="-85.05112" :step="0.00001" @change="onLatChange" /></li>
         </ul>
       </div>
     </section>
